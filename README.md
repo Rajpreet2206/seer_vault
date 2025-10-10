@@ -1,5 +1,19 @@
 # seer_vault
 A conversational file processing, editing and storage system (ElasticSearch + Fivetran + VertexAI)
+- [Introduction](#introduction-to-the-project-aiaccelerate)
+    - [Interface Overview](#interface-overview)
+    - [An Automated Semantic Retrieval System](#an-automated-semantic-retrieval-system)
+    - [Continuous Semantic Extraction Pipeline](#continuous-semantic-extraction-pipeline)
+    - [Enterprise Data Integration Through Fivetran](#enterprise-data-integration-through-fivetran)
+
+- [Project Goals](#project-goals)
+    - [1. Intelligent Conversational File Access](#1-intelligent-conversational-file-access)
+    - [2. Superior Semantic Search Performance](#2-superior-semantic-search-performance)
+    - [3. Real-Time Semantic Processing](#3-real-time-semantic-processing)
+    - [4. Production-Scale Architecture](#4-production-scale-architecture)
+    - [5. Extensible Data Integration](#5-extensible-data-integration)
+
+## Introduction to the Project (AI:Accelerate)
 
 ### Interface Overview
 **SeerVault** provides a production-grade conversational interface that fundamentally transforms how users interact with cloud storage. Rather than forcing users to navigate folder hierarchies or remember specific filenames, the system should understand and respond to natural language commands with the same fluency as a human assistant. Users should be able to issue complex requests such as *"find all financial documents from Q3 that mention revenue projections"* or *"create a timeline visualization from my travel photos taken in Europe last summer"* and receive accurate, contextually relevant results. The system maintains conversational context across multiple interactions, allowing users to refine queries through follow-up questions without repeating information. This requirement extends beyond simple search to encompass full CRUD operations, enabling users to organize, rename, share, and modify files through natural dialogue. The interface must handle ambiguous queries gracefully, asking clarifying questions when intent is unclear while avoiding unnecessary interaction friction. 

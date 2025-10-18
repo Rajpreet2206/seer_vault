@@ -43,3 +43,118 @@ Deploy a serverless system on Google Cloud supporting **N** concurrent users wit
 ### 5. Extensible Data Integration
 Demonstrate **Fivetran** SDK integration by building a custom connector that automatically ingests external data sources into BigQuery, enabling unified semantic search across both user-uploaded files and business system data.
 
+## Core Components
+### **Frontend:** React + TypeScript Chat UI (conversational input + optional file browser + visualizations)
+### **Object Storage:** Google Cloud Storage (durable file books, versioning, signed URLs)
+### **Event backbone:** Pub/Sub topics for file.uploaded, extraction.requested, index.updated, query.submitted
+### **Extraction workers:** Cloud Run Jobs (stateless)
+### **Embedding Service:** Vertex AI Embeddings 
+### **Reasoning LLM:** Vertex/Gemini for query decomposition, multi-turn reasoning and summarization
+### **Analytics & Warehouse:** BigQuery (via Fivetran for external data sync) + dbt transformations
+### **Cache/Context:** Memorystore (Redis) for conversational context and hot-embedding caching
+### **Orchestration:** Cloud Run for LLM Pipelines + Cloud Tasks for scheduled jobs
+### **Observability:** OpenTelemetry -> Cloud Trace -> Elastic APM, Cloud Monitoring + Logging
+### **IaC/CI:** Terraform + Github Actions (CI pipeline)
+
+
+---
+
+## 🗂️ Development Phases
+
+### **Phase 0 — Setup & Skeleton (1 week)**
+- Initialize repo, Terraform modules (GCS, Pub/Sub, IAM)
+- Build minimal React UI (chat + file upload)
+- Create Cloud Function to emit `file.uploaded` events  
+**Goal:** Working foundation + deployable infrastructure
+
+---
+
+### **Phase 1 — Core Semantic System (4–6 weeks)**
+- Build **file extraction pipeline** (PDF, DOCX, image OCR)
+- Generate **embeddings via Vertex AI** and index in ElasticSearch  
+- Implement **hybrid retrieval** (vector + BM25)
+- Basic **chat interface** to query, summarize, and preview results  
+**Goal:** Upload → Extract → Search end-to-end
+
+---
+
+### **Phase 2 — Intelligent Agents & Data Integration (8–10 weeks)**
+- Add **Gemini reasoning agent** for multi-turn conversations  
+- Integrate **Fivetran connector** to sync external data into **BigQuery**
+- Map structured BigQuery data into ElasticSearch for unified search
+- Add **data visualization and summarization** features  
+**Goal:** Cross-source intelligent retrieval (files + enterprise data)
+
+---
+
+### **Phase 3 — Scalability & Enterprise Features (10–12 weeks)**
+- Optimize indexing (ILM, hot/cold tiers, caching)
+- Add **SSO, audit logs, and field-level security**
+- Implement **observability** (Elastic APM, Cloud Monitoring)
+- Compliance (GDPR, HIPAA-ready design)
+**Goal:** Production-grade system with monitoring and security
+
+---
+
+## 🧠 Data Flow
+
+1. User uploads file → stored in **GCS**
+2. Pub/Sub triggers extraction → parse + chunk content
+3. Generate **embeddings (Vertex)** + index in **ElasticSearch**
+4. Graph links connect files, metadata, and related entities
+5. User queries → **hybrid retrieval** (vector + keyword + graph)
+6. **Gemini agent** summarizes or visualizes results
+
+---
+
+## 🧱 Core Index Mapping (Simplified)
+| Field | Type | Purpose |
+|-------|------|----------|
+| file_id | keyword | File identifier |
+| text_bm25 | text | Keyword search |
+| text_vector | dense_vector (768D) | Semantic similarity |
+| metadata | object | Author, date, tags |
+| permissions | keyword | Access control |
+
+---
+
+## 🧰 Tools & Infrastructure
+
+| Component | Technology |
+|------------|-------------|
+| Storage | Google Cloud Storage (GCS) |
+| Compute | Cloud Run (serverless) |
+| Indexing | Elastic Cloud |
+| Embeddings | Vertex AI (textembedding-gecko / multimodalembedding) |
+| Data Integration | Fivetran + BigQuery |
+| Orchestration | Pub/Sub + Cloud Tasks |
+| Infrastructure | Terraform + GitHub Actions |
+| Observability | Elastic APM + Cloud Monitoring |
+| Frontend | React + TypeScript |
+
+---
+
+## ✅ Phase Roadmap Summary
+
+| Phase | Focus | Output |
+|--------|--------|--------|
+| 0 | Setup & Infra | Terraform, GCS, Pub/Sub, UI Skeleton |
+| 1 | Semantic Core | Upload → Extract → Index → Search |
+| 2 | Reasoning & Integration | Gemini Agents, Fivetran Connector |
+| 3 | Scale & Security | SSO, Observability, ILM, Compliance |
+
+---
+
+## 📈 Next Steps
+- [ ] Implement Terraform setup for GCS + Pub/Sub  
+- [ ] Build PDF extraction service (Cloud Run)  
+- [ ] Create Elastic index mapping + hybrid search API  
+- [ ] Integrate Vertex Embeddings + Gemini Reasoning  
+- [ ] Add Fivetran Connector → BigQuery Pipeline  
+
+---
+
+**Author:** Rajpreet Singh  
+**Project:** AI:Accelerate — SeerVault  
+**Goal:** Transform file storage into an AI-powered conversational knowledge system.
+

@@ -3,16 +3,19 @@ import requests
 from datetime import datetime
 from typing import List, Dict, Any
 from elasticsearch import Elasticsearch
+from .config import CONNECTOR_CONFIG
 
 class SeerVaultCRMConnector:
-    """Basic Fivetran-style connector for CRM data"""
+    """Fivetran-style connector for CRM data"""
     
-    def __init__(self, config: Dict[str, Any]):
-        self.config = config
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or CONNECTOR_CONFIG
         self.es_client = Elasticsearch([
-            f"http://{config['destination']['host']}:{config['destination']['port']}"
+            f"http://{self.config['destination']['host']}:{self.config['destination']['port']}"
         ])
-        self.index_name = config['destination']['index']
+        self.index_name = self.config['destination']['index']
+        self.use_mock = self.config['sync_config']['use_mock_data']
+        self.last_sync = None
         self._initialize_index()
     
     def _initialize_index(self):
@@ -21,7 +24,10 @@ class SeerVaultCRMConnector:
             self.es_client.indices.create(
                 index=self.index_name,
                 body={
-                    "settings": {"number_of_shards": 1, "number_of_replicas": 0},
+                    "settings": {
+                        "number_of_shards": 1,
+                        "number_of_replicas": 0,
+                    },
                     "mappings": {
                         "properties": {
                             "id": {"type": "keyword"},
@@ -40,18 +46,38 @@ class SeerVaultCRMConnector:
             )
             print(f"Index '{self.index_name}' created")
     
-    def fetch_crm_data(self, endpoint: str) -> List[Dict[str, Any]]:
-        """Fetch data from CRM API"""
+    def fetch_crm_data(self, endpoint: str, incremental: bool = False) -> List[Dict[str, Any]]:
+        """Fetch data from CRM API or mock data"""
         try:
-            url = f"{self.config['source']['base_url']}{endpoint}"
-            headers = {"Authorization": "Bearer YOUR_API_KEY"}
+            if self.use_mock:
+                data = self._get_mock_data(endpoint)
+            else:
+                data = self._fetch_from_api(endpoint, incremental)
             
-            # For demo, return mock data
-            mock_data = self._get_mock_data(endpoint)
-            print(f"Fetched {len(mock_data)} records from {endpoint}")
-            return mock_data
+            print(f"Fetched {len(data)} records from {endpoint}")
+            return data
         except Exception as e:
             print(f"Error fetching from {endpoint}: {e}")
+            return []
+    
+    def _fetch_from_api(self, endpoint: str, incremental: bool) -> List[Dict[str, Any]]:
+        """Fetch from real CRM API"""
+        url = f"{self.config['source']['base_url']}{endpoint}"
+        headers = {
+            "Authorization": f"Bearer {self.config['source']['api_key']}",
+            "Content-Type": "application/json"
+        }
+        
+        params = {}
+        if incremental and self.last_sync:
+            params['updated_since'] = self.last_sync
+        
+        try:
+            response = requests.get(url, headers=headers, params=params, timeout=10)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"API request failed: {e}")
             return []
     
     def _get_mock_data(self, endpoint: str) -> List[Dict[str, Any]]:
@@ -98,19 +124,39 @@ class SeerVaultCRMConnector:
                     "updated_at": "2024-10-12",
                 },
             ]
+        elif endpoint == "/companies":
+            return [
+                {
+                    "id": "comp_001",
+                    "name": "Acme Corporation",
+                    "email": "info@acme.com",
+                    "status": "active",
+                    "created_at": "2024-01-10",
+                    "updated_at": "2024-10-15",
+                },
+            ]
         return []
     
-    def sync_data(self):
-        """Full sync of all CRM data"""
+    def sync_data(self, incremental: bool = False):
+        """Sync CRM data to Elasticsearch"""
         try:
+            synced_count = 0
             for endpoint_name, endpoint_path in self.config['source']['endpoints'].items():
-                data = self.fetch_crm_data(endpoint_path)
+                data = self.fetch_crm_data(endpoint_path, incremental)
                 for record in data:
                     record['data_type'] = endpoint_name
                     record['source'] = 'crm'
                     self._index_record(record)
-            print("Sync completed successfully")
-            return {"status": "success", "synced_at": datetime.now().isoformat()}
+                    synced_count += 1
+            
+            self.last_sync = datetime.now().isoformat()
+            print(f"Sync completed: {synced_count} records synced")
+            return {
+                "status": "success",
+                "records_synced": synced_count,
+                "synced_at": self.last_sync,
+                "sync_type": "incremental" if incremental else "full"
+            }
         except Exception as e:
             print(f"Sync failed: {e}")
             return {"status": "failed", "error": str(e)}
@@ -131,7 +177,8 @@ class SeerVaultCRMConnector:
             return {
                 "status": "healthy",
                 "indexed_documents": doc_count,
-                "last_sync": datetime.now().isoformat(),
+                "last_sync": self.last_sync or "never",
+                "index": self.index_name,
             }
         except Exception as e:
             return {"status": "error", "message": str(e)}

@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Sparkles } from 'lucide-react';
 import { SearchInput } from './components/SearchInput';
-import { FilesDropdown } from './components/FilesDropdown';
+import { DataDropdown } from './components/DataDropdown';
 import { StagingArea } from './components/StagingArea';
 
 interface UploadedFile {
@@ -25,6 +25,12 @@ interface Message {
   content: string;
 }
 
+interface CRMData {
+  status: string;
+  indexed_documents: number;
+  last_sync: string;
+}
+
 export default function SeerVaultUI() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -34,6 +40,34 @@ export default function SeerVaultUI() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewContent, setPreviewContent] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
+  const [crmData, setCrmData] = useState<CRMData | null>(null);
+  const [syncing, setSyncing] = useState(false);
+
+  useEffect(() => {
+    fetchCRMStatus();
+  }, []);
+
+  const fetchCRMStatus = async () => {
+    try {
+      const response = await fetch('http://localhost:8000/connector/status');
+      const data = await response.json();
+      setCrmData(data);
+    } catch (error) {
+      console.error('Error fetching CRM status:', error);
+    }
+  };
+
+  const handleSyncCRM = async () => {
+    setSyncing(true);
+    try {
+      await fetch('http://localhost:8000/connector/sync', { method: 'POST' });
+      await fetchCRMStatus();
+    } catch (error) {
+      console.error('Sync error:', error);
+    } finally {
+      setSyncing(false);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!input.trim()) return;
@@ -191,11 +225,16 @@ export default function SeerVaultUI() {
               </div>
             </div>
 
-            <FilesDropdown 
-              uploadedFiles={uploadedFiles}
-              getFileIcon={getFileIcon}
-              formatFileSize={formatFileSize}
-            />
+            <div className="flex items-center gap-4">
+              <DataDropdown 
+                uploadedFiles={uploadedFiles}
+                crmData={crmData}
+                getFileIcon={getFileIcon}
+                formatFileSize={formatFileSize}
+                onSyncCRM={handleSyncCRM}
+                syncing={syncing}
+              />
+            </div>
           </div>
         </div>
 

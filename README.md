@@ -154,6 +154,63 @@ Demonstrate **Fivetran** SDK integration by building a custom connector that aut
 
 ---
 
+## Fivetran Connector Integration
+
+### Overview
+
+SeerVault includes a built-in Fivetran connector that enables unified search across both uploaded files and external data sources. A Fivetran connector is a data pipeline tool that automatically extracts data from external systems (such as CRM platforms, databases, or APIs), transforms it into a standardized format, and loads it into a destination system. This integration eliminates data silos by allowing users to search across multiple information sources from a single interface.
+
+### How the Connector Works
+
+The Fivetran connector operates through three core stages: extraction, transformation, and loading. First, it extracts customer records, deals, and company information from connected CRM systems. Second, it transforms this raw data into a normalized format compatible with Elasticsearch indexing. Third, it loads the processed data into the `seervault-crm-data` Elasticsearch index, making it immediately searchable alongside uploaded files.
+
+When a user initiates a search in SeerVault, the system queries both the file index and the CRM data index simultaneously, ranks results by relevance score, and presents unified results in the staging area. This approach ensures that whether a user is searching for a sales document or customer information, they receive comprehensive results without navigating between disparate systems.
+
+### Architecture
+
+The connector integrates with SeerVault through the following architecture:
+```
+External CRM System (Salesforce, HubSpot, etc.)
+         ↓
+Fivetran Connector (Extract & Transform)
+         ↓
+Elasticsearch Indices
+  ├─ seervault-files (uploaded documents)
+  └─ seervault-crm-data (CRM records)
+         ↓
+Unified Search Engine
+         ↓
+Single Staging Area Display
+```
+
+On application startup, the connector automatically syncs CRM data into Elasticsearch. When users submit a search query, the system queries both indices and returns results ranked by relevance score. Both file and CRM data results appear in the same staging area, creating a unified search experience.
+
+### Current Implementation
+
+The current implementation provides a foundational connector with the following capabilities:
+
+- Mock CRM data integration for demonstration purposes
+- Automatic data synchronization on application startup
+- Unified search across file and CRM indices
+- Shared preview functionality for both file and record data
+- Basic error handling and logging
+
+### Limitations and Production Considerations
+
+The current implementation uses mock data and is designed for development and demonstration. For production deployment, the connector requires several enhancements:
+
+- Real API authentication credentials for actual CRM systems
+- Incremental synchronization to update only changed or new records, rather than performing full resyncs
+- Scheduled synchronization on defined intervals (hourly, daily, or custom schedules)
+- Comprehensive error recovery and retry mechanisms
+- Detailed logging and monitoring for connector health and performance
+- Rate limiting and connection pooling for efficient API usage
+
+### Future Enhancements
+
+Planned improvements to the connector include support for multiple data sources, advanced field mapping and transformation rules, data validation and quality checks, and a user interface for managing connector configuration and sync schedules. These enhancements will enable organizations to extend SeerVault to integrate with their complete data ecosystem.
+
+
 **Author:** Rajpreet Singh  
 **Project:** AI:Accelerate — SeerVault  
 **Goal:** Transform file storage into an AI-powered conversational knowledge system.

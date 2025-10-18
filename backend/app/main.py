@@ -5,6 +5,8 @@ import os
 import uuid
 from pathlib import Path
 
+from fivetran_connector.connector import SeerVaultCRMConnector
+from fivetran_connector.config import CONNECTOR_CONFIG
 from services.elasticsearch_service import create_index, index_document, hybrid_search, health_check
 from services.extraction_service import extract_metadata
 
@@ -134,6 +136,42 @@ async def get_file_preview(file_id: str, lines: int = 15):
             return {"error": "File not found"}
     except Exception as e:
         return {"error": str(e)}
+
+# Fivetran Connector endpoints
+
+@app.post("/connector/sync")
+async def sync_crm_data():
+    """Trigger Fivetran connector sync"""
+    try:
+        connector = SeerVaultCRMConnector(CONNECTOR_CONFIG)
+        result = connector.sync_data()
+        return result
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+@app.get("/connector/status")
+async def get_connector_status():
+    """Get connector sync status"""
+    try:
+        connector = SeerVaultCRMConnector(CONNECTOR_CONFIG)
+        status = connector.get_sync_status()
+        return status
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
+
+@app.post("/connector/search")
+async def search_crm_data(query: str):
+    """Search CRM data synced via Fivetran"""
+    try:
+        results = await hybrid_search("seervault-crm-data", query, top_k=5)
+        return {
+            "query": query,
+            "source": "crm",
+            "count": len(results),
+            "results": results
+        }
+    except Exception as e:
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
 
 if __name__ == "__main__":

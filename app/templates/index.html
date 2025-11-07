@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <title>SeerVault</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+
+<body>
+
+<div class="orb orb1"></div>
+<div class="orb orb2"></div>
+
+<header>
+    <div class="logo">
+        <div class="icon">
+             <img src="{{ url_for('static', filename='img/ssys_logo.png') }}" alt="logo">
+        </div>
+        <div>
+            <h1>SeerVault</h1>
+            <p>AI-Powered Intelligence on Files</p>
+        </div>
+    </div>
+    <div id="status">Checking…</div>
+</header>
+
+<nav>
+    <button data-tab="upload" class="active">Upload</button>
+    <button data-tab="search">AI Search</button>
+    <button data-tab="archive">Archive</button>
+
+</nav>
+
+<main>
+
+    <!-- Upload -->
+    <section id="upload" class="view visible">
+        <div id="dropzone">
+            <input type="file" id="fileInput" multiple hidden>
+            <label for="fileInput">Drop files or click to upload</label>
+            <div class="note">✨ AI processing enabled</div>
+        </div>
+
+        <div id="recent"></div>
+    </section>
+
+    <!-- Archive -->
+    <section id="archive" class="view">
+        <h2>Archive</h2>
+        <div id="archiveList"></div>
+    </section>
+
+    <!-- Search -->
+    <section id="search" class="view">
+        <h2>Semantic Search</h2>
+        <div class="searchBar">
+            <input id="q" placeholder="Ask anything about your files…" />
+            <button id="searchBtn">Search</button>
+        </div>
+        <div id="results"></div>
+    </section>
+
+</main>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<div id="uploadProgress" class="upload-overlay">
+  <div class="upload-box">    
+    <div class="upload-text1">SeerVault is processing your files</div>
+    <div class="upload-text">Uploading… <span id="uploadPercent">0%</span></div>
+    <div class="upload-bar">
+      <div class="upload-fill" id="uploadFill"></div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

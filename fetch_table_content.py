@@ -27,7 +27,9 @@ try:
     # Show table fields/columns
     inspector = inspect(engine)
     columns = inspector.get_columns("seervault_file_contexts", schema="public")
-    
+    tables = inspector.get_table_names(schema="public")
+    print("Tables in public:", tables)
+
     print("=== Table Fields ===")
     for col in columns:
         print(f"  - {col['name']}: {col['type']}")
@@ -36,7 +38,7 @@ try:
     
     with engine.connect() as conn:
         # Fetch all rows from the table
-        result = conn.execute(text("SELECT * FROM seervault_file_contexts;"))
+        result = conn.execute(text("SELECT * FROM uploaded_files;"))
         rows = result.fetchall()
         
         if rows:

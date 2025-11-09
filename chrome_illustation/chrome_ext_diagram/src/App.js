@@ -101,7 +101,7 @@ const getLayerDetails = (id) => {
         {/* Header */}
         <div style={{ textAlign: 'center', marginBottom: '64px' }}>
           <h1 style={{ fontSize: '48px', fontWeight: 'bold', background: 'linear-gradient(to right, #06b6d4, #60a5fa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginBottom: '16px' }}>SeerVault</h1>
-          <p style={{ fontSize: '24px', fontWeight: '600', color: '#06b6d4', marginBottom: '8px' }}>Enabling intelligence on Files</p>
+          <p style={{ fontSize: '24px', fontWeight: '600', color: '#06b6d4', marginBottom: '8px' }}>Enabling Intelligence on Files</p>
           
         </div>
 
@@ -124,8 +124,8 @@ const getLayerDetails = (id) => {
               <p style={{ color: 'white', fontWeight: 'bold', fontSize: '18px', margin: '0' }}>Challenge</p>
               <p style={{ color: '#cffafe', fontSize: '14px', marginTop: '4px', margin: '0' }}>
                 Mapping user intent to heterogeneous file semantics is non-trivial. Extracting cross-modal meaning requires
-                scalable embeddings, entity graphing, and vector indexing. Performing multi-file operations, reasoning,
-                and retrieval—without manual download—demands orchestration across distributed agents and high-performance
+                scalable embeddings, entity graphing, and vector indexing. Performing multi file operations, reasoning,
+                and retrieval without manual download demands orchestration across distributed agents and high-performance
                 storage layers.
               </p>
             </div>
